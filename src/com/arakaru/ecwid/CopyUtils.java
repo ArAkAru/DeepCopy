@@ -7,37 +7,30 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Map;
 
-public class CopyObj {
-	public static <V, K, T> T deepCopy(T original)
+public class CopyUtils {
+	public static <V, K, T> T deepCopy(T originalObj)
 			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException, ClassNotFoundException {
-		Constructor[] con = original.getClass().getDeclaredConstructors();
+		Constructor[] con = originalObj.getClass().getDeclaredConstructors();
 		Constructor<T> declaredConstructor = null;
 
 		T clone = null;
 		if (con.length == 0) {
-			declaredConstructor = (Constructor<T>) original.getClass().getConstructor();
-
+			declaredConstructor = (Constructor<T>) originalObj.getClass().getConstructor();
 			clone = declaredConstructor.newInstance();
 
 		} else {
-			for (Constructor a : con) {
-				
+			for (Constructor<?> a : con) {
 				Object args[] = new Object[a.getParameters().length];
 				for (int i = 0; i < args.length; i++) {
 					if (a.getParameters()[i].getType().isPrimitive()) {
 						args[i] = 0;
-
 					} else {
 						args[i] = null;
-
 					}
-
 				}
-
-				declaredConstructor = (Constructor<T>) original.getClass()
+				declaredConstructor = (Constructor<T>) originalObj.getClass()
 						.getDeclaredConstructor((a.getParameterTypes()));
-
 				clone = declaredConstructor.newInstance(args);
 				break;
 			}
@@ -50,47 +43,42 @@ public class CopyObj {
 			if (field.getType().isArray()) {
 
 				Object array = Array.newInstance(field.getType().getComponentType(),
-						Array.getLength(field.get(original)));
-
+						Array.getLength(field.get(originalObj)));
+				// ЕСЛИ ЭТО МАССИВ ОБЪЕКТОВ КРОМЕ STRING
 				if (field.getType().getName().startsWith("[L") && !field.getType().getName().contains("String")) {
-
-					for (int i = 0; i < Array.getLength(field.get(original)); i++) {
-
-						Array.set(array, i, deepCopy(Array.get(field.get(original), i)));
-
+					for (int i = 0; i < Array.getLength(field.get(originalObj)); i++) {
+						Array.set(array, i, deepCopy(Array.get(field.get(originalObj), i)));
 					}
-
 				} else {
-					System.arraycopy(field.get(original), 0, array, 0, Array.getLength(field.get(original)));
+					System.arraycopy(field.get(originalObj), 0, array, 0, Array.getLength(field.get(originalObj)));
 				}
-
 				field.set(clone, array);
 				continue;
 			}
 
 			if (field.getType().isPrimitive() || isPrim(field.getType().getName())) {
-				field.set(clone, field.get(original));
+				field.set(clone, field.get(originalObj));
 				continue;
 			}
 
 			if (field.getType().getSimpleName().contains("List") || field.getType().getSimpleName().contains("Set")) {
 
-				Class clazz = field.get(original).getClass();
+				Class<?> clazz = field.get(originalObj).getClass();
 				Constructor<?> constructor = (Constructor<?>) clazz.getConstructor();
-				Collection<Object> list = (Collection<Object>) constructor.newInstance();
-				Collection list2 = (Collection) field.get(original);
-				list2.stream().forEach(value -> {
-					list.add(getValue(value));
+				Collection<Object> copylist = (Collection<Object>) constructor.newInstance();
+				Collection<?> originalList = (Collection<?>) field.get(originalObj);
+				originalList.stream().forEach(value -> {
+					copylist.add(getValue(value));
 				});
-				field.set(clone, list);
+				field.set(clone, copylist);
 				continue;
 //			
 			}
 
 			if (field.getType().getSimpleName().contains("Map")) {
 
-				Map<K, V> origmap = (Map<K, V>) field.get(original);
-				Class clazz = field.get(original).getClass();
+				Map<K, V> origmap = (Map<K, V>) field.get(originalObj);
+				Class<?> clazz = field.get(originalObj).getClass();
 				Constructor<?> constructor = (Constructor<?>) clazz.getConstructor();
 				Map<K, V> map = (Map<K, V>) constructor.newInstance();
 				origmap.values().forEach(mapValue -> {
@@ -100,17 +88,14 @@ public class CopyObj {
 				continue;
 
 			}
-
+			//если поле это собственный класс
 			else {
-				Class clazz = field.getType();
-				field.set(clone, deepCopy(field.get(original)));
+				field.set(clone, deepCopy(field.get(originalObj)));
 				continue;
 			}
 
 		}
-
 		return clone;
-
 	}
 
 	private static <K, V> K getKey(Map<K, V> Map, V value) {
@@ -125,7 +110,6 @@ public class CopyObj {
 
 	private static <V> V getValue(V mapValue) {
 		V copyMapValue = null;
-
 		if (isPrim(mapValue.getClass().getName())) {
 			copyMapValue = mapValue;
 		} else {
@@ -141,7 +125,7 @@ public class CopyObj {
 
 		return copyMapValue;
 	}
-
+	//проверяем класс оболочка ли поле
 	private static boolean isPrim(String name) {
 		if (name.contains("String") || name.contains("Integer") || name.contains("Double") || name.contains("Byte")
 				|| name.contains("Boolean") || name.contains("Long") || name.contains("Short")

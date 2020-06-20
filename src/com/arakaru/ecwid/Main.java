@@ -3,6 +3,7 @@ package com.arakaru.ecwid;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -52,10 +53,11 @@ public class Main {
 		employee.setDep(department);
 		
 		
-		
-		Employee employeeClone=CopyObj.deepCopy(employee);
-		System.out.println(employee);
-		System.out.println(employeeClone);
+		System.out.println("*********************************************Test #1*******************************************************");
+		System.out.println("**Before deepCopy**");
+		Employee employeeClone=CopyUtils.deepCopy(employee);
+		System.out.println("Original obj: "+employee);
+		System.out.println("Clone obj: "+employeeClone);
 		
 		Car WV = new Car();
 		WV.setName("Polo");
@@ -67,10 +69,38 @@ public class Main {
 		employee.setAge(33);
 		employee.setName("Alex");
 		employee.getCars().put("3", WV);
+		System.out.println("**After deepCopy**");
+		System.out.println("Original obj: "+employee);
+		System.out.println("Clone obj: "+employeeClone);
 		
-		System.out.println(employee);
-		System.out.println(employeeClone);
 		
+		/*
+		 * Тест второй
+		 * 
+		 * */
+		System.out.println("*********************************************Test #2*******************************************************");
+		System.out.println("**Before deepCopy**");
+		List<String>books=new LinkedList<String>();
+		books.add("Horstmann");
+		books.add("Schildt");
+		books.add("Eckel");
+		
+		Man man= new Man("Boris",35,books);
+		Man manCopy=CopyUtils.deepCopy(man);
+		
+		System.out.println("Original obj: "+man);
+		System.out.println("Clone obj: "+manCopy);
+		
+		man.setAge(54);
+		man.setName("Ivan");
+		List<String>newBooks=new LinkedList<String>();
+		newBooks.add("Pushkin");
+		newBooks.add("Lafore");
+		newBooks.add("Lippman");
+		man.setFavoriteBooks(newBooks);
+		System.out.println("**After deepCopy**");
+		System.out.println("Original obj: "+man);
+		System.out.println("Clone obj: "+manCopy);
 	}
 
 }

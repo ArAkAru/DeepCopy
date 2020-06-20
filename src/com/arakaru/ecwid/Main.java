@@ -54,7 +54,7 @@ public class Main {
 		
 		
 		System.out.println("*********************************************Test #1*******************************************************");
-		System.out.println("**Before deepCopy**");
+		System.out.println("**Before changing**");
 		Employee employeeClone=CopyUtils.deepCopy(employee);
 		System.out.println("Original obj: "+employee);
 		System.out.println("Clone obj: "+employeeClone);
@@ -69,7 +69,7 @@ public class Main {
 		employee.setAge(33);
 		employee.setName("Alex");
 		employee.getCars().put("3", WV);
-		System.out.println("**After deepCopy**");
+		System.out.println("**After changing**");
 		System.out.println("Original obj: "+employee);
 		System.out.println("Clone obj: "+employeeClone);
 		
@@ -79,7 +79,7 @@ public class Main {
 		 * 
 		 * */
 		System.out.println("*********************************************Test #2*******************************************************");
-		System.out.println("**Before deepCopy**");
+		System.out.println("**Before changing**");
 		List<String>books=new LinkedList<String>();
 		books.add("Horstmann");
 		books.add("Schildt");
@@ -98,7 +98,7 @@ public class Main {
 		newBooks.add("Lafore");
 		newBooks.add("Lippman");
 		man.setFavoriteBooks(newBooks);
-		System.out.println("**After deepCopy**");
+		System.out.println("**After changing**");
 		System.out.println("Original obj: "+man);
 		System.out.println("Clone obj: "+manCopy);
 	}
